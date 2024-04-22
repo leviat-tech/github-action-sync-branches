@@ -21,6 +21,7 @@ jobs:
         run: |
           EXISTING_PR=$(gh pr list --head ${{ github.ref_name }} --json number --jq ".[] | .number")
           echo "EXISTING_PR=$EXISTING_PR" >> $GITHUB_ENV
+          echo "COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
           if [[ -n $EXISTING_PR ]]; then                                                                                    
             echo "Pull request $EXISTING_PR exists. Skipping PR creation step"
           else
@@ -61,5 +62,5 @@ jobs:
 
       - name: Deploy
         # Deploy to test/stage on all pushes, but only deploy to prod when a tag is pushed
-        if: github.ref_name != 'prod' || contains(steps.get_commit_message.outputs.message, 'chore(prod):: release')
+        if: github.ref_name != 'prod' || contains(env.COMMIT_MESSAGE, 'chore(prod): release')
         run: echo deploying to ${{ github.ref_name }}
