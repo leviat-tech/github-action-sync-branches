@@ -28,6 +28,7 @@ jobs:
           
           # Check if the last commit is a release commit
           if git log -1 --pretty=%B | grep -q "chore(prod): release"; then
+            echo "This is a release and will be deployed to production"
             echo "IS_RELEASE=true" >> $GITHUB_ENV
           fi
 
