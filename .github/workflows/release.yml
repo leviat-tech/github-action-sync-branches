@@ -2,13 +2,11 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
     branches: [ dev, main, prod ]
 
 jobs:
-  create-pr:
-    name: Create PR
+  release:
+    name: Release
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
@@ -16,19 +14,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Check for existing PR
-        id: check_pr
+      - name: Set env
         if: github.ref_name != 'prod'
         run: |
+          # Check if a PR already exists
           EXISTING_PR=$(gh pr list --head ${{ github.ref_name }} --json number --jq ".[] | .number")
           echo "EXISTING_PR=$EXISTING_PR" >> $GITHUB_ENV
-          echo "COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
           if [[ -n $EXISTING_PR ]]; then                                                                                    
             echo "Pull request $EXISTING_PR exists. Skipping PR creation step"
           else
             echo "No existing pull requests. A PR will now be automatically created."
           fi
-          echo "::set-output name=commit_message::$(git log -1 --pretty=%B)"
+          
+          # Check if the last commit is a release commit
+          if git log -1 --pretty=%B | grep -q "chore(prod): release"; then
+            echo "This is a release and will be deployed to production"
+            echo "IS_RELEASE=true" >> $GITHUB_ENV
+          fi
 
       - name: Create PR to main
         if: github.ref_name == 'dev' && env.EXISTING_PR == ''
@@ -64,5 +66,5 @@ jobs:
 
       - name: Deploy
         # Deploy to test/stage on all pushes, but only deploy to prod when a tag is pushed
-        if: "github.ref_name != 'prod' || contains(steps.check_pr.outputs.commit_message, 'chore(prod): release')"
+        if: github.ref_name != 'prod' || env.IS_RELEASE == 'true'
         run: echo deploying to ${{ github.ref_name }}
