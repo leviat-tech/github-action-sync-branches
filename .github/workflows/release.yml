@@ -2,9 +2,9 @@ name: Release
 
 on:
   push:
-    branches: [ dev, main, prod ]
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
+    branches: [ dev, main, prod ]
 
 jobs:
   create-pr:
@@ -59,11 +59,7 @@ jobs:
           default-branch: prod
           package-name: action-test
 
-  deploy:
-    name: Deploy
-    # Deploy to test/stage on all pushes, but only deploy to prod when a tag is pushed
-    if: github.ref_name != 'prod' || github.ref_type == 'tag'
-    runs-on: ubuntu-latest
-    environment: ${{ github.ref_name }}
-    steps:
-      - run: echo deploying to ${{ github.ref_name }}
+      - name: Deploy
+        # Deploy to test/stage on all pushes, but only deploy to prod when a tag is pushed
+        if: github.ref_name != 'prod' || contains(steps.get_commit_message.outputs.message, 'chore(prod): release')
+        run: echo deploying to ${{ github.ref_name }}
