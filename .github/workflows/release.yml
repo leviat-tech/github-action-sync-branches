@@ -45,8 +45,8 @@ jobs:
           label="autorelease: prepare"
           gh label create "$label"  -c=#201547 -f
           gh pr create \
-          --base "$base" \
-          --head "$branch" \
+          --base "prod" \
+          --head "main" \
           --title "Prepare release" \
           --body "Automated pull request from main to prod. Merging this will trigger the creation/update of a release PR but deployment will not occur until the release PR is merged." \
           --label "$label"
@@ -65,8 +65,5 @@ jobs:
     if: github.ref_name != 'prod' || github.ref_type == 'tag'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name }}
-    defaults:
-      run:
-        working-directory: ./project
     steps:
       - run: echo deploying to ${{ github.ref_name }}
