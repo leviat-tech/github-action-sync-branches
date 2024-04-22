@@ -61,5 +61,5 @@ jobs:
 
       - name: Deploy
         # Deploy to test/stage on all pushes, but only deploy to prod when a tag is pushed
-        if: github.ref_name != 'prod' || contains(steps.get_commit_message.outputs.message, 'chore(prod): release')
+        if: github.ref_name != 'prod' || contains(steps.get_commit_message.outputs.message, 'chore(prod):: release')
         run: echo deploying to ${{ github.ref_name }}
