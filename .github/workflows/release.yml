@@ -65,8 +65,5 @@ jobs:
     if: github.ref_name != 'prod' || github.ref_type == 'tag'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name }}
-    defaults:
-      run:
-        working-directory: ./project
     steps:
       - run: echo deploying to ${{ github.ref_name }}
