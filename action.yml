@@ -20,8 +20,8 @@ runs:
       shell: bash
       run: |
         # Check if PRs already exist
-        EXISTING_PR=$(gh pr list --head ${{ github.ref_name }} --json number --jq ".[] | .number")
-        EXISTING_SYNC_PR=$(gh pr list --base ${{ github.ref_name }} --json number --jq ".[] | .number")
+        EXISTING_PR=$(gh pr list --head ${{ github.ref_name }} --json number --jq ".[0] | .number")
+        EXISTING_SYNC_PR=$(gh pr list --base ${{ github.ref_name }} --json number --jq ".[0] | .number")
         
         echo "EXISTING_SYNC_PR=$EXISTING_SYNC_PR" >> $GITHUB_ENV
         echo "EXISTING_PR=$EXISTING_PR" >> $GITHUB_ENV
