@@ -15,7 +15,9 @@ runs:
       uses: actions/checkout@v4
 
     - name: Set vars
+
       id: set_vars
+      shell: bash
       run: |
         # Check if PRs already exist
         EXISTING_PR=$(gh pr list --head ${{ github.ref_name }} --json number --jq ".[] | .number")
@@ -44,6 +46,7 @@ runs:
       if: github.ref_name == 'dev' && env.EXISTING_PR == ''
       env:
         GH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+      shell: bash
       run: |
         label="autodeploy: staging"
         gh label create "$label" -c=#201547 -f
@@ -58,6 +61,7 @@ runs:
       if: github.ref_name == 'main' && env.EXISTING_PR == ''
       env:
         GH_TOKEN: ${{ inputs.GITHUB_TOKEN }}
+      shell: bash
       run: |
         label="autorelease: prepare"
         gh label create "$label"  -c=#201547 -f
