@@ -3,8 +3,6 @@ description: Automatically creates sync/release PRs to environment branches
 inputs:
   GITHUB_TOKEN:
     required: true
-  PACKAGE_NAME:
-    required: true
 outputs:
   is_release:
     value: ${{ steps.set_vars.outputs.IS_RELEASE }}
@@ -22,9 +20,11 @@ runs:
         # Check if PRs already exist
         EXISTING_PR=$(gh pr list --head ${{ github.ref_name }} --json number --jq ".[0] | .number")
         EXISTING_SYNC_PR=$(gh pr list --base ${{ github.ref_name }} --json number --jq ".[0] | .number")
+        REPO_NAME=$(gh repo view --json name -q ".name")
         
         echo "EXISTING_SYNC_PR=$EXISTING_SYNC_PR" >> $GITHUB_ENV
         echo "EXISTING_PR=$EXISTING_PR" >> $GITHUB_ENV
+        echo "REPO_NAME=$REPO_NAME" >> $GITHUB_ENV
         
         if [[ -n $EXISTING_PR ]]; then                                                                                    
           echo "Pull request $EXISTING_PR exists. Skipping PR creation step"
@@ -72,7 +72,6 @@ runs:
         --body "Automated pull request from main to prod. Merging this will trigger the creation/update of a release PR but deployment will not occur until the release PR is merged." \
         --label "$label"
 
-
     - name: Create release PR
       if: github.ref_name == 'prod' && env.IS_RELEASE != 'true'
       uses: google-github-actions/release-please-action@v3
@@ -80,4 +79,4 @@ runs:
         release-type: node
         path: project
         default-branch: prod
-        package-name: ${{ inputs.PACKAGE_NAME }}
+        package-name: ${{ env.REPO_NAME }}
