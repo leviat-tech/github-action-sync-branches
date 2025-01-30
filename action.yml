@@ -17,6 +17,9 @@ runs:
       id: set_vars
       shell: bash
       run: |
+        # Store token in env
+        echo "GITHUB_TOKEN=${{ inputs.GITHUB_TOKEN }}" >> $GITHUB_ENV
+        
         # Check if PRs already exist
         EXISTING_PR=$(gh pr list --head ${{ github.ref_name }} --json number --jq ".[0] | .number")
         EXISTING_SYNC_PR=$(gh pr list --base ${{ github.ref_name }} --json number --jq ".[0] | .number")
@@ -76,7 +79,7 @@ runs:
       if: github.ref_name == 'prod' && env.IS_RELEASE != 'true'
       uses: google-github-actions/release-please-action@v3
       with:
-        token: ${{ inputs.GITHUB_TOKEN }}
+        token: ${{ env.GITHUB_TOKEN }}
         release-type: node
         path: project
         default-branch: prod
